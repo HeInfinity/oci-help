@@ -77,6 +77,8 @@ stop() {
     killall -9 oci-help  # Adjust the process name if needed
 }
 ------------------------------------
+# 赋予自启脚本权限
+chmod +x /etc/init.d/oci-help
 # 设置自启
 /etc/init.d/oci-help enable
 # 启动脚本
