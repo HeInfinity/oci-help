@@ -30,20 +30,60 @@
 > IDBot: https://t.me/myidbot
 
 
-## 运行程序
-```bash
-# 前台运行程序
-./oci-help
-
-# 前台运行需要一直开着终端窗口，可以在 Screen 中运行程序，以实现断开终端窗口后一直运行。
-# 创建 Screen 终端
-screen -S oci-help 
-# 在 Screen 中运行程序
-./oci-help
-# 离开 Screen 终端
-按下 Ctrl 键不松，依次按字母 A 键和 D 键。或者直接关闭终端窗口也可以。
-# 查看已创建的 Screen 终端
-screen -ls
-# 重新连接 Screen 终端
-screen -r oci-help
+## 在R2S中运行程序
 ```
+# 创建目标目录
+sudo mkdir -p /root/oci_help
+
+# 进入目标目录
+cd /root/oci_help
+
+# 使用 wget 下载文件
+wget "https://github.com/lemoex/oci-help/releases/download/v2.3.1/oci-help-linux-arm64-v2.3.1.zip" -O oci-help.zip
+
+# 解压文件, 上传pem文件, 并编辑配置文件
+unzip oci-help.zip
+
+# 安装screen, 编辑screen脚本
+vi /root/oci_help/run-oci-help.sh
+------------------------------------
+#!/bin/sh
+# 这个脚本将在一个新的 screen 会话中启动 oci-help 交互式程序，并通过命令行参数指定配置文件路径
+
+# 在 screen 会话中启动 oci-help 程序，直接指定配置文件路径
+screen -dmS oci-help-session /root/oci_help/oci-help -config /root/oci_help/oci-help.ini
+
+# 显示启动消息
+echo "启动了 screen 会话 'oci-help-session'。使用 'screen -r oci-help-session' 来访问会话。"
+------------------------------------
+# 赋予screen脚本权限
+chmod +x run-oci-help.sh
+
+# 新建脚本, 设置开机自启与自运行screen脚本
+vi /etc/init.d/oci-help
+------------------------------------
+#!/bin/sh /etc/rc.common
+
+START=99  # The start priority
+STOP=10   # The stop priority
+
+start() {
+    echo "Starting OCI-Help..."
+    /root/oci_help/run-oci-help.sh
+}
+
+stop() {
+    echo "Stopping OCI-Help..."
+    killall -9 oci-help  # Adjust the process name if needed
+}
+------------------------------------
+# 设置自启
+/etc/init.d/oci-help enable
+# 启动脚本
+/etc/init.d/oci-help start
+# 停止脚本
+/etc/init.d/oci-help stop
+```
+
+## 如果想离开 screen 而不终止运行的程序：
+使用 Ctrl+A，然后按 D。这个操作会分离 screen 会话，将其留在后台运行，而你则返回到你的原始 shell。这样可以让 oci-help 或任何其他程序继续在 screen 会话中运行，而不会被中断。
