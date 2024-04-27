@@ -85,6 +85,8 @@ chmod +x /etc/init.d/oci-help
 /etc/init.d/oci-help start
 # 停止脚本
 /etc/init.d/oci-help stop
+# 进入启动界面
+screen -r oci-help-session
 ```
 
 ## 如果想离开 screen 而不终止运行的程序：
